@@ -120,55 +120,77 @@ if ($conn->connect_error) {
 ?>
 
 👤 Step 3 – User Registration
-
 File: register.php
-
 Users enter a username and password
-
 Password is hashed for security
-
 Data saved into users table
 
 ✅ URL → http://localhost/php_project/register.php
 
 🔐 Step 4 – User Login
-
 File: login.php
-
 Validates username/password
-
 Starts a session
-
 Redirects to posts page on success
 
 ✅ URL → http://localhost/php_project/login.php
 
 📝 Step 5 – Create Post
-
 File: add_post.php
-
 Allows logged-in users to create new blog posts
-
 Posts are stored in posts table
 
 ✅ URL → http://localhost/php_project/add_post.php
 
 📜 Step 6 – View All Posts
-
 File: posts.php
-
 Displays all blog posts
-
 Shows Edit and Delete buttons
 
 ✅ URL → http://localhost/php_project/posts.php
-
 ✏️ Step 7 – Edit & Delete Posts
-
 Files:
-
 edit_post.php – Update title/content
-
 delete_post.php – Remove post from database
-
 logout.php – End user session
+
+
+
+🧩 TASK 3 — Advanced Features (Search + Pagination + UI)
+
+
+✅ What Was Done
+
+Added Bootstrap UI
+
+Integrated Bootstrap 5 for styling
+
+Used cards, buttons, and navbar for a clean layout
+
+Added gradient background and centered design
+
+Implemented Search Function
+
+Users can search blog posts by title or content
+
+Dynamic filtering of results using SQL LIKE queries
+
+Added Pagination
+
+Limited to 5 posts per page
+
+Navigation links added to move between pages
+
+Improved Overall UI
+
+Uniform design across all pages
+
+Responsive layout for all screen sizes
+
+Buttons for edit, delete, add new post, and logout
+
+🧾 Result
+
+The project now has a modern look with search and pagination features, making it more user-friendly and professional.
+
+✅ Task 3 Completed Successfully.
