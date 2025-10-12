@@ -47,8 +47,8 @@ php_project/
 
 🧱 Database Setup
 
-1️⃣ Open phpMyAdmin → click New → create a database named blog
-2️⃣ Run this SQL inside phpMyAdmin:
+1️⃣ create a database named blog
+2️⃣ Run this SQL inside phpMyAdmin
 
 CREATE TABLE users (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -63,38 +63,112 @@ CREATE TABLE posts (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-🚀 How to Run the Project
-
-1️⃣ Install XAMPP
-
-2️⃣ Copy the folder php_project into:
-
-C:\xampp\htdocs\
-
-
 3️⃣ Start Apache and MySQL in XAMPP Control Panel
-4️⃣ Open your browser and go to:
-
-http://localhost/php_project/register.php
-
-
+4️⃣ Open your browser and go to
 5️⃣ Register, login, and start adding blog posts!
-
-
-You can add screenshots like this:
-
-![Register Page]
-![Login Page]
-![Dashboard]
 
 🧑‍💻 Technologies Used
 
 PHP 8+
-
 MySQL (phpMyAdmin)
-
 HTML / CSS
-
 XAMPP Server
-
 VS Code
+
+Task 2 — Basic CRUD Application
+
+
+🪄 Step 1 – Database Setup
+
+Open phpMyAdmin
+
+Click New → name it blog → Create
+
+Run this SQL:
+
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(100) NOT NULL,
+  password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE posts (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+✅ Now you have 2 tables: users and posts
+
+🔌 Step 2 – Database Connection
+
+File: db_connection.php
+
+<?php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "blog";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+  die("Connection failed: " . $conn->connect_error);
+}
+?>
+
+👤 Step 3 – User Registration
+
+File: register.php
+
+Users enter a username and password
+
+Password is hashed for security
+
+Data saved into users table
+
+✅ URL → http://localhost/php_project/register.php
+
+🔐 Step 4 – User Login
+
+File: login.php
+
+Validates username/password
+
+Starts a session
+
+Redirects to posts page on success
+
+✅ URL → http://localhost/php_project/login.php
+
+📝 Step 5 – Create Post
+
+File: add_post.php
+
+Allows logged-in users to create new blog posts
+
+Posts are stored in posts table
+
+✅ URL → http://localhost/php_project/add_post.php
+
+📜 Step 6 – View All Posts
+
+File: posts.php
+
+Displays all blog posts
+
+Shows Edit and Delete buttons
+
+✅ URL → http://localhost/php_project/posts.php
+
+✏️ Step 7 – Edit & Delete Posts
+
+Files:
+
+edit_post.php – Update title/content
+
+delete_post.php – Remove post from database
+
+logout.php – End user session
