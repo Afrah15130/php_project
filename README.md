@@ -194,3 +194,30 @@ Buttons for edit, delete, add new post, and logout
 The project now has a modern look with search and pagination features, making it more user-friendly and professional.
 
 ✅ Task 3 Completed Successfully.
+
+
+🧩 Task 4 — Role-Based Access Control (RBAC)
+
+In this task, role management was added to the blog application to control who can edit or delete posts.
+
+Steps Implemented
+
+Added a role column to the users table (default = user).
+
+Created two roles — Admin and User.
+• Admin → can edit or delete any post.
+• User → can edit or delete only their own posts.
+
+Updated login.php to store both username and role in session.
+
+Updated edit_post.php and delete_post.php to verify permissions before allowing changes.
+
+Displayed proper messages like “✅ Post deleted successfully” or “❌ You don’t have permission to delete this post.”
+
+Result
+
+Normal users can manage only their own posts.
+
+Admins have full control over all posts.
+
+Unauthorized access correctly shows a “permission denied” message.
