@@ -221,3 +221,38 @@ Normal users can manage only their own posts.
 Admins have full control over all posts.
 
 Unauthorized access correctly shows a “permission denied” message.
+
+
+✅Task 5 — Blog Post Image Upload
+Features Added
+
+Image Upload on Posts
+Users can upload an image when creating a new blog post (add_post.php).
+Supported images are stored in the uploads/ folder inside the project.
+Display Images in Posts
+All posts display their associated image in posts.php.
+Images are shown above the post content with proper styling.
+Edit Post with Image
+Users can edit their posts (edit_post.php) and optionally update the image.
+The old image is retained if no new image is uploaded.
+
+Uploads Folder
+Make sure uploads/ exists in your project root:
+C:\xampp\htdocs\php_project\uploads
+Uploaded images are stored here.
+
+How to Test
+Open add_post.php in your browser:
+http://localhost/php_project/add_post.php
+
+Fill in Title, Content, and choose an Image → Submit.
+
+Go to posts.php:
+http://localhost/php_project/posts.php
+You should see the post with the image displayed.
+
+Edit a post in edit_post.php → Change the image or leave it → Submit.
+The updated image should appear in posts.php.
+
+
+ALL THE TASKS ARE SUCCESSFULLY COMPLETED!!!
