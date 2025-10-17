@@ -1,0 +1,124 @@
+Task 2 – Basic CRUD Application
+
+Register.php
+<?php
+include 'db_connection.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = $_POST['username'];
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+
+    $sql = "INSERT INTO users (username, password) VALUES ('$username', '$password')";
+    if ($conn->query($sql)) {
+        echo "✅ Registered successfully! <a href='login.php'>Login here</a>";
+    } else {
+        echo "❌ Error: " . $conn->error;
+    }
+}
+?>
+<form method="POST">
+  <h2>Register</h2>
+  Username: <input type="text" name="username" required><br>
+  Password: <input type="password" name="password" required><br>
+  <button type="submit">Register</button>
+</form>
+
+📄 login.php
+<?php
+session_start();
+include 'db_connection.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    $result = $conn->query("SELECT * FROM users WHERE username='$username'");
+    if ($result->num_rows > 0) {
+        $user = $result->fetch_assoc();
+        if (password_verify($password, $user['password'])) {
+            $_SESSION['username'] = $username;
+            header("Location: posts.php");
+            exit;
+        } else echo "❌ Invalid password";
+    } else echo "❌ No such user found";
+}
+?>
+<form method="POST">
+  <h2>Login</h2>
+  Username: <input type="text" name="username" required><br>
+  Password: <input type="password" name="password" required><br>
+  <button type="submit">Login</button>
+</form>
+
+📄 posts.php
+<?php
+session_start();
+if (!isset($_SESSION['username'])) { header("Location: login.php"); exit; }
+include 'db_connection.php';
+
+$result = $conn->query("SELECT * FROM posts ORDER BY created_at DESC");
+?>
+<h2>Welcome, <?php echo $_SESSION['username']; ?> 👋</h2>
+<a href="add_post.php">➕ Add New Post</a> | <a href="logout.php">Logout</a>
+<hr>
+<?php while($row = $result->fetch_assoc()): ?>
+  <h3><?php echo $row['title']; ?></h3>
+  <p><?php echo $row['content']; ?></p>
+  <a href="edit_post.php?id=<?php echo $row['id']; ?>">✏️ Edit</a>
+  <a href="delete_post.php?id=<?php echo $row['id']; ?>">🗑️ Delete</a>
+  <hr>
+<?php endwhile; ?>
+
+📄 add_post.php
+<?php
+session_start();
+include 'db_connection.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $title = $_POST['title'];
+    $content = $_POST['content'];
+    $conn->query("INSERT INTO posts (title, content) VALUES ('$title','$content')");
+    header("Location: posts.php");
+}
+?>
+<form method="POST">
+  <h2>Add New Post</h2>
+  Title: <input type="text" name="title" required><br>
+  Content: <textarea name="content" required></textarea><br>
+  <button type="submit">Add Post</button>
+</form>
+
+📄 edit_post.php
+<?php
+include 'db_connection.php';
+$id = $_GET['id'];
+$post = $conn->query("SELECT * FROM posts WHERE id=$id")->fetch_assoc();
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $title = $_POST['title'];
+    $content = $_POST['content'];
+    $conn->query("UPDATE posts SET title='$title', content='$content' WHERE id=$id");
+    header("Location: posts.php");
+}
+?>
+<form method="POST">
+  <h2>Edit Post</h2>
+  Title: <input type="text" name="title" value="<?php echo $post['title']; ?>" required><br>
+  Content: <textarea name="content" required><?php echo $post['content']; ?></textarea><br>
+  <button type="submit">Update</button>
+</form>
+
+📄 delete_post.php
+<?php
+include 'db_connection.php';
+$id = $_GET['id'];
+$conn->query("DELETE FROM posts WHERE id=$id");
+header("Location: posts.php");
+?>
+
+📄 logout.php
+<?php
+session_start();
+session_destroy();
+header("Location: login.php");
+?>
