@@ -75,7 +75,7 @@ HTML / CSS
 XAMPP Server
 VS Code
 
-Task 2 — Basic CRUD Application
+## Task 2 — Basic CRUD Application
 
 
 🪄 Step 1 – Database Setup
@@ -156,103 +156,4 @@ logout.php – End user session
 
 
 
-🧩 TASK 3 — Advanced Features (Search + Pagination + UI)
 
-
-✅ What Was Done
-
-Added Bootstrap UI
-
-Integrated Bootstrap 5 for styling
-
-Used cards, buttons, and navbar for a clean layout
-
-Added gradient background and centered design
-
-Implemented Search Function
-
-Users can search blog posts by title or content
-
-Dynamic filtering of results using SQL LIKE queries
-
-Added Pagination
-
-Limited to 5 posts per page
-
-Navigation links added to move between pages
-
-Improved Overall UI
-
-Uniform design across all pages
-
-Responsive layout for all screen sizes
-
-Buttons for edit, delete, add new post, and logout
-
-🧾 Result
-
-The project now has a modern look with search and pagination features, making it more user-friendly and professional.
-
-✅ Task 3 Completed Successfully.
-
-
-🧩 Task 4 — Role-Based Access Control (RBAC)
-
-In this task, role management was added to the blog application to control who can edit or delete posts.
-
-Steps Implemented
-
-Added a role column to the users table (default = user).
-
-Created two roles — Admin and User.
-• Admin → can edit or delete any post.
-• User → can edit or delete only their own posts.
-
-Updated login.php to store both username and role in session.
-
-Updated edit_post.php and delete_post.php to verify permissions before allowing changes.
-
-Displayed proper messages like “✅ Post deleted successfully” or “❌ You don’t have permission to delete this post.”
-
-Result
-
-Normal users can manage only their own posts.
-
-Admins have full control over all posts.
-
-Unauthorized access correctly shows a “permission denied” message.
-
-
-✅Task 5 — Blog Post Image Upload
-Features Added
-
-Image Upload on Posts
-Users can upload an image when creating a new blog post (add_post.php).
-Supported images are stored in the uploads/ folder inside the project.
-Display Images in Posts
-All posts display their associated image in posts.php.
-Images are shown above the post content with proper styling.
-Edit Post with Image
-Users can edit their posts (edit_post.php) and optionally update the image.
-The old image is retained if no new image is uploaded.
-
-Uploads Folder
-Make sure uploads/ exists in your project root:
-C:\xampp\htdocs\php_project\uploads
-Uploaded images are stored here.
-
-How to Test
-Open add_post.php in your browser:
-http://localhost/php_project/add_post.php
-
-Fill in Title, Content, and choose an Image → Submit.
-
-Go to posts.php:
-http://localhost/php_project/posts.php
-You should see the post with the image displayed.
-
-Edit a post in edit_post.php → Change the image or leave it → Submit.
-The updated image should appear in posts.php.
-
-
-ALL THE TASKS ARE SUCCESSFULLY COMPLETED!!!
