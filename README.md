@@ -155,5 +155,25 @@ delete_post.php – Remove post from database
 logout.php – End user session
 
 
+🧩 TASK 3 — Advanced Features (Search + Pagination + UI)
+✅ What Was Done
+->Added Bootstrap UI
+->Integrated Bootstrap 5 for styling
+->Used cards, buttons, and navbar for a clean layout
+->Added gradient background and centered design
+->Implemented Search Function
+->Users can search blog posts by title or content
+->Dynamic filtering of results using SQL LIKE queries
+->Added Pagination
+->Limited to 5 posts per page
+->Navigation links added to move between pages
+->Improved Overall UI
+->Uniform design across all pages
+>Responsive layout for all screen sizes
+->Buttons for edit, delete, add new post, and logout
+
+🧾 Result
+The project now has a modern look with search and pagination features, making it more user-friendly and professional.
+✅ Task 3 Completed Successfully.
 
 
