@@ -1,1 +1,260 @@
+1️⃣ db_connection.php
+
+(Same as before — for completeness)
+
+<?php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "blog";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+?>
+
+2️⃣ posts.php (Main Dashboard with Search + Pagination + UI)
+✅ This is the main file where search, pagination, and Bootstrap UI are implemented.
+
+<?php
+session_start();
+include 'db_connection.php';
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$user_id = $_SESSION['user_id'];
+
+// SEARCH FUNCTIONALITY
+$search = "";
+if (isset($_GET['search'])) {
+    $search = $_GET['search'];
+}
+
+// PAGINATION SETTINGS
+$limit = 5; // posts per page
+$page = isset($_GET['page']) ? $_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
+
+// MAIN QUERY
+$sql = "SELECT * FROM posts 
+        WHERE user_id='$user_id' 
+        AND (title LIKE '%$search%' OR content LIKE '%$search%')
+        ORDER BY id DESC
+        LIMIT $limit OFFSET $offset";
+$result = $conn->query($sql);
+
+// COUNT TOTAL POSTS (for pagination)
+$countSql = "SELECT COUNT(*) AS total FROM posts 
+             WHERE user_id='$user_id' 
+             AND (title LIKE '%$search%' OR content LIKE '%$search%')";
+$totalResult = $conn->query($countSql)->fetch_assoc();
+$totalPosts = $totalResult['total'];
+$totalPages = ceil($totalPosts / $limit);
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Blog Posts</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  body {
+    background: linear-gradient(135deg, #74ABE2, #5563DE);
+    min-height: 100vh;
+  }
+  .navbar {
+    background-color: #222;
+  }
+  .card {
+    border-radius: 15px;
+  }
+</style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark px-3">
+  <a class="navbar-brand text-light" href="#">My Blog</a>
+  <div>
+    <a href="add_post.php" class="btn btn-success btn-sm">Add New Post</a>
+    <a href="logout.php" class="btn btn-danger btn-sm">Logout</a>
+  </div>
+</nav>
+
+<div class="container py-4">
+  <div class="text-center mb-4">
+    <h2 class="text-white">My Blog Posts</h2>
+  </div>
+
+  <!-- SEARCH BAR -->
+  <form method="GET" class="mb-4 d-flex justify-content-center">
+    <input type="text" name="search" class="form-control w-50" placeholder="Search posts..." value="<?php echo $search; ?>">
+    <button type="submit" class="btn btn-primary ms-2">Search</button>
+  </form>
+
+  <div class="row justify-content-center">
+    <?php if ($result->num_rows > 0) { ?>
+      <?php while ($row = $result->fetch_assoc()) { ?>
+        <div class="col-md-8 mb-4">
+          <div class="card shadow-sm">
+            <?php if ($row['image']) { ?>
+              <img src="uploads/<?php echo $row['image']; ?>" class="card-img-top" style="height:250px;object-fit:cover;">
+            <?php } ?>
+            <div class="card-body">
+              <h5 class="card-title"><?php echo htmlspecialchars($row['title']); ?></h5>
+              <p class="card-text text-muted"><?php echo nl2br(htmlspecialchars(substr($row['content'], 0, 200))); ?>...</p>
+              <a href="edit_post.php?id=<?php echo $row['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
+              <a href="delete_post.php?id=<?php echo $row['id']; ?>" class="btn btn-danger btn-sm">Delete</a>
+            </div>
+          </div>
+        </div>
+      <?php } ?>
+    <?php } else { ?>
+      <div class="col-md-8 text-center text-light">
+        <h4>No posts found!</h4>
+      </div>
+    <?php } ?>
+  </div>
+
+  <!-- PAGINATION -->
+  <nav>
+    <ul class="pagination justify-content-center">
+      <?php if ($page > 1) { ?>
+        <li class="page-item"><a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo $search; ?>">Prev</a></li>
+      <?php } ?>
+      <?php for ($i = 1; $i <= $totalPages; $i++) { ?>
+        <li class="page-item <?php if ($i == $page) echo 'active'; ?>">
+          <a class="page-link" href="?page=<?php echo $i; ?>&search=<?php echo $search; ?>"><?php echo $i; ?></a>
+        </li>
+      <?php } ?>
+      <?php if ($page < $totalPages) { ?>
+        <li class="page-item"><a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo $search; ?>">Next</a></li>
+      <?php } ?>
+    </ul>
+  </nav>
+</div>
+</body>
+</html>
+
+
+3️⃣ add_post.php (Styled with Bootstrap)
+<?php
+session_start();
+include 'db_connection.php';
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $title = $_POST['title'];
+    $content = $_POST['content'];
+    $user_id = $_SESSION['user_id'];
+
+    $image_name = $_FILES['image']['name'];
+    $image_tmp = $_FILES['image']['tmp_name'];
+    if ($image_name) {
+        move_uploaded_file($image_tmp, "uploads/$image_name");
+    }
+
+    $sql = "INSERT INTO posts (title, content, image, user_id) 
+            VALUES ('$title', '$content', '$image_name', '$user_id')";
+    if ($conn->query($sql)) {
+        header("Location: posts.php");
+    } else {
+        echo "Error: " . $conn->error;
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Add Post</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body { background: linear-gradient(135deg, #74ABE2, #5563DE); }
+.card { border-radius: 15px; }
+</style>
+</head>
+<body class="d-flex align-items-center justify-content-center vh-100">
+<div class="card shadow-lg p-4" style="width:400px;">
+<h3 class="text-center mb-3">Add New Post</h3>
+<form method="POST" enctype="multipart/form-data">
+  <input type="text" name="title" class="form-control mb-3" placeholder="Title" required>
+  <textarea name="content" class="form-control mb-3" placeholder="Content" required></textarea>
+  <input type="file" name="image" class="form-control mb-3">
+  <button type="submit" class="btn btn-success w-100">Add Post</button>
+  <a href="posts.php" class="btn btn-secondary w-100 mt-2">Back</a>
+</form>
+</div>
+</body>
+</html>
+
+
+
+4️⃣ edit_post.php (Styled UI)
+<?php
+session_start();
+include 'db_connection.php';
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$id = $_GET['id'];
+$post = $conn->query("SELECT * FROM posts WHERE id='$id'")->fetch_assoc();
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $title = $_POST['title'];
+    $content = $_POST['content'];
+
+    $conn->query("UPDATE posts SET title='$title', content='$content' WHERE id='$id'");
+    header("Location: posts.php");
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Edit Post</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body { background: linear-gradient(135deg, #74ABE2, #5563DE); }
+.card { border-radius: 15px; }
+</style>
+</head>
+<body class="d-flex align-items-center justify-content-center vh-100">
+<div class="card shadow-lg p-4" style="width:400px;">
+<h3 class="text-center mb-3">Edit Post</h3>
+<form method="POST">
+  <input type="text" name="title" class="form-control mb-3" value="<?php echo $post['title']; ?>" required>
+  <textarea name="content" class="form-control mb-3" required><?php echo $post['content']; ?></textarea>
+  <button type="submit" class="btn btn-warning w-100">Update Post</button>
+  <a href="posts.php" class="btn btn-secondary w-100 mt-2">Back</a>
+</form>
+</div>
+</body>
+</html>
+
+
+
+ 5️⃣ delete_post.php (Same logic, just clean redirect)
+<?php
+session_start();
+include 'db_connection.php';
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$id = $_GET['id'];
+$conn->query("DELETE FROM posts WHERE id='$id'");
+header("Location: posts.php");
+exit();
+?>
+
 
