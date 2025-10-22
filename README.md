@@ -169,7 +169,7 @@ logout.php – End user session
 ->Navigation links added to move between pages
 ->Improved Overall UI
 ->Uniform design across all pages
->Responsive layout for all screen sizes
+->Responsive layout for all screen sizes
 ->Buttons for edit, delete, add new post, and logout
 
 🧾 Result
