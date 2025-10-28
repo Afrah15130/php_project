@@ -1,0 +1,74 @@
+🔹posts.php
+<?php
+session_start();
+include 'db_connection.php';
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$user_id = $_SESSION['user_id'];
+$result = $conn->query("SELECT * FROM posts WHERE user_id='$user_id'");
+?>
+
+<h2>My Posts</h2>
+<a href="add_post.php">Add New Post</a> | <a href="logout.php">Logout</a>
+
+<?php while ($row = $result->fetch_assoc()) { ?>
+  <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+    <h3><?php echo $row['title']; ?></h3>
+    <p><?php echo $row['content']; ?></p>
+    <?php if ($row['image']) { ?>
+      <img src="uploads/<?php echo $row['image']; ?>" width="200"><br>
+    <?php } ?>
+    <a href="edit_post.php?id=<?php echo $row['id']; ?>">Edit</a> |
+    <a href="delete_post.php?id=<?php echo $row['id']; ?>">Delete</a>
+  </div>
+<?php } ?>
+
+
+
+🔹 edit_post.php
+<?php
+session_start();
+include 'db_connection.php';
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$id = $_GET['id'];
+$post = $conn->query("SELECT * FROM posts WHERE id='$id'")->fetch_assoc();
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $title = $_POST['title'];
+    $content = $_POST['content'];
+
+    $conn->query("UPDATE posts SET title='$title', content='$content' WHERE id='$id'");
+    header("Location: posts.php");
+}
+?>
+
+<form method="POST">
+  <h2>Edit Post</h2>
+  Title: <input type="text" name="title" value="<?php echo $post['title']; ?>"><br>
+  Content: <textarea name="content"><?php echo $post['content']; ?></textarea><br>
+  <button type="submit">Update</button>
+</form>
+
+
+
+🔹 delete_post.php
+<?php
+session_start();
+include 'db_connection.php';
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$id = $_GET['id'];
+$conn->query("DELETE FROM posts WHERE id='$id'");
+header("Location: posts.php");
+exit();
+?>
