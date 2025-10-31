@@ -194,3 +194,38 @@ Admins have full control over all posts.
 Unauthorized access correctly shows a “permission denied” message.
 
 
+✅ TASK 5 — Blog Post Image Upload & Final Features
+
+🧩 Key Features Implemented
+🖼️ 1. Image Upload on Posts
+->Users can now upload an image while creating a new post via add_post.php.
+->Supported file formats include JPG, JPEG, PNG, and GIF.
+->Uploaded images are automatically stored inside the uploads/ folder located in:
+C:\xampp\htdocs\php_project\uploads
+
+🪶 2. Display Images in Posts
+->Every post now displays its associated image on posts.php.
+->Images appear neatly above the post title and content, with consistent styling for readability.
+
+✏️ 3. Edit Post with Image Update
+->Users can edit their existing posts in edit_post.php.
+->They can choose to upload a new image, or if none is selected, the previous image is automatically retained.
+
+📁 4. Uploads Folder Handling
+-The application checks and stores all uploaded images in the uploads/ directory.
+->This ensures files are properly organized and accessible through the posts page.
+
+
+🧾 Outcome
+
+With this milestone, the web application now supports:
+->User authentication and security
+->CRUD operations (Create, Read, Update, Delete)
+->Image upload and management
+->Session control and access restrictions
+
+🎯 Final Remark
+->All five internship tasks are now successfully completed!
+->The project is fully functional, secure, and ready for deployment.
+
+
