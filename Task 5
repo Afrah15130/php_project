@@ -1,0 +1,230 @@
+1️⃣ db_connection.php (same as before)
+<?php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "blog";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+?>
+
+
+2️⃣ register.php (Password hashing + validation)
+<?php
+include 'db_connection.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = trim($_POST['username']);
+    $password = $_POST['password'];
+    $confirm = $_POST['confirm'];
+
+    // Validate
+    if (empty($username) || empty($password)) {
+        echo "All fields are required.";
+    } elseif ($password !== $confirm) {
+        echo "Passwords do not match!";
+    } else {
+        // Hash password securely
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+        // Check if username exists
+        $checkUser = $conn->query("SELECT * FROM users WHERE username='$username'");
+        if ($checkUser->num_rows > 0) {
+            echo "Username already exists!";
+        } else {
+            $sql = "INSERT INTO users (username, password) VALUES ('$username', '$hashed_password')";
+            if ($conn->query($sql)) {
+                echo "✅ Registration successful! <a href='login.php'>Login here</a>";
+            } else {
+                echo "❌ Error: " . $conn->error;
+            }
+        }
+    }
+}
+?>
+
+<form method="POST">
+  <h2>Register</h2>
+  Username: <input type="text" name="username" required><br>
+  Password: <input type="password" name="password" required><br>
+  Confirm Password: <input type="password" name="confirm" required><br>
+  <button type="submit">Register</button>
+</form>
+
+
+3️⃣ login.php (Password verification + secure session)
+<?php
+session_start();
+include 'db_connection.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = trim($_POST['username']);
+    $password = $_POST['password'];
+
+    $sql = "SELECT * FROM users WHERE username='$username'";
+    $result = $conn->query($sql);
+
+    if ($result->num_rows > 0) {
+        $user = $result->fetch_assoc();
+        // Verify hashed password
+        if (password_verify($password, $user['password'])) {
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['username'] = $user['username'];
+            header("Location: posts.php");
+            exit();
+        } else {
+            echo "❌ Invalid password!";
+        }
+    } else {
+        echo "❌ User not found!";
+    }
+}
+?>
+
+<form method="POST">
+  <h2>Login</h2>
+  Username: <input type="text" name="username" required><br>
+  Password: <input type="password" name="password" required><br>
+  <button type="submit">Login</button>
+</form>
+
+
+4️⃣ posts.php (Session-based access control)
+<?php
+session_start();
+include 'db_connection.php';
+
+// Restrict access if not logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$user_id = $_SESSION['user_id'];
+$result = $conn->query("SELECT * FROM posts WHERE user_id='$user_id'");
+?>
+
+<h2>Welcome, <?php echo $_SESSION['username']; ?>!</h2>
+<a href="add_post.php">Add New Post</a> | <a href="logout.php">Logout</a>
+
+<?php while ($row = $result->fetch_assoc()) { ?>
+  <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+    <h3><?php echo htmlspecialchars($row['title']); ?></h3>
+    <p><?php echo nl2br(htmlspecialchars($row['content'])); ?></p>
+    <?php if ($row['image']) { ?>
+      <img src="uploads/<?php echo htmlspecialchars($row['image']); ?>" width="200"><br>
+    <?php } ?>
+    <a href="edit_post.php?id=<?php echo $row['id']; ?>">Edit</a> |
+    <a href="delete_post.php?id=<?php echo $row['id']; ?>" onclick="return confirm('Delete this post?');">Delete</a>
+  </div>
+<?php } ?>
+
+
+5️⃣ add_post.php (Secure upload handling)
+<?php
+session_start();
+include 'db_connection.php';
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $title = htmlspecialchars(trim($_POST['title']));
+    $content = htmlspecialchars(trim($_POST['content']));
+    $user_id = $_SESSION['user_id'];
+
+    $image_name = "";
+    if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+        $allowed = ['jpg', 'jpeg', 'png', 'gif'];
+        $file_ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+
+        if (in_array($file_ext, $allowed)) {
+            $image_name = uniqid() . "." . $file_ext;
+            move_uploaded_file($_FILES['image']['tmp_name'], "uploads/" . $image_name);
+        } else {
+            echo "❌ Invalid file type!";
+        }
+    }
+
+    $sql = "INSERT INTO posts (title, content, image, user_id) VALUES ('$title', '$content', '$image_name', '$user_id')";
+    if ($conn->query($sql)) {
+        header("Location: posts.php");
+        exit();
+    } else {
+        echo "Error: " . $conn->error;
+    }
+}
+?>
+
+<form method="POST" enctype="multipart/form-data">
+  <h2>Add New Post</h2>
+  Title: <input type="text" name="title" required><br>
+  Content: <textarea name="content" required></textarea><br>
+  Image: <input type="file" name="image" accept="image/*"><br>
+  <button type="submit">Add Post</button>
+</form>
+
+
+6️⃣ edit_post.php
+<?php
+session_start();
+include 'db_connection.php';
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$id = $_GET['id'];
+$post = $conn->query("SELECT * FROM posts WHERE id='$id' AND user_id='{$_SESSION['user_id']}'")->fetch_assoc();
+
+if (!$post) {
+    die("Unauthorized access!");
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $title = htmlspecialchars($_POST['title']);
+    $content = htmlspecialchars($_POST['content']);
+
+    $conn->query("UPDATE posts SET title='$title', content='$content' WHERE id='$id'");
+    header("Location: posts.php");
+    exit();
+}
+?>
+
+<form method="POST">
+  <h2>Edit Post</h2>
+  Title: <input type="text" name="title" value="<?php echo htmlspecialchars($post['title']); ?>"><br>
+  Content: <textarea name="content"><?php echo htmlspecialchars($post['content']); ?></textarea><br>
+  <button type="submit">Update</button>
+</form>
+
+
+7️⃣ delete_post.php
+<?php
+session_start();
+include 'db_connection.php';
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$id = $_GET['id'];
+$conn->query("DELETE FROM posts WHERE id='$id' AND user_id='{$_SESSION['user_id']}'");
+header("Location: posts.php");
+exit();
+?>
+
+
+8️⃣ logout.php
+<?php
+session_start();
+session_unset();
+session_destroy();
+header("Location: login.php");
+exit();
+?>
